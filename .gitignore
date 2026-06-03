@@ -1,0 +1,16 @@
+# build output
+demo-project/demo
+demo-project/*.o
+demo-project/compile_commands.json
+
+# benchmark scratch
+/tmp/sqlite-bench/
+sqlite3.c
+sqlite3.h
+
+# clangd background-index cache
+.cache/
+**/.cache/
+
+__pycache__/
+*.pyc
