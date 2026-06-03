@@ -129,6 +129,43 @@ clangd.
 
 ---
 
+## Making Claude Code actually *prefer* clangd over grep
+
+Registering the MCP server only **hands Claude the tools** — it doesn't make
+Claude choose them. The agent decides per task, so left alone it will often
+still grep. "I installed it but it keeps grepping" is the usual pitfall. Three
+levers, in order of reliability:
+
+1. **Ask in the moment.** "Find the definition of `init_session` with clangd
+   (`lsp_definition`), not grep." Reliable for that one task.
+
+2. **Write it into `CLAUDE.md`.** A `CLAUDE.md` at the repo root is loaded every
+   session and shifts the default behavior:
+
+   ```markdown
+   ## Code navigation (C/C++)
+   - For definitions / references / renames of functions, types, and variables,
+     use the clangd-lsp tools, not grep:
+     definition -> lsp_definition / references -> lsp_references / rename -> lsp_rename
+   - Use grep only for non-code text: comments, log strings, build config.
+   - When same-name functions, `static`, or macro-built names are involved,
+     confirm with clangd before editing.
+   ```
+
+3. **Register at project scope** so the whole team shares it. `--scope project`
+   writes a `.mcp.json` into the repo:
+
+   ```bash
+   claude mcp add clangd-lsp --scope project -- \
+       python3 /abs/path/scripts/lsp_mcp_server.py /abs/path/to/your-repo
+   ```
+
+Even with `CLAUDE.md`, preference is a bias, not a guarantee — Claude may still
+judge grep "good enough" for a given step. When it matters, just say "use
+clangd" for that step.
+
+---
+
 ## Use it on your own (or your company's) codebase
 
 1. Make clangd see your build: generate `compile_commands.json`.
